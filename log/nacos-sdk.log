@@ -1,0 +1,1 @@
+2022-04-19T19:33:24.211+0800	[31mERROR[0m	cache/disk_cache.go:60	read cacheDir:/Users/fico/go/src/metadata/cache/naming failed!err:open /Users/fico/go/src/metadata/cache/naming: no such file or directory
