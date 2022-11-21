@@ -9,6 +9,8 @@ import (
 	"github.com/SunMaybo/zero/common/zcfg"
 	"github.com/SunMaybo/zero/common/zrpc"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/keepalive"
+	"time"
 )
 
 var cfgPath = flag.String("cfg", "/Users/fico/go/src/metadata/services/asset_platform/greeter/rpc/etc/config.yaml", "config file path")
@@ -20,10 +22,16 @@ func init() {
 func main() {
 	cfg := config.Config{}
 	zcfg.LoadConfig(*cfgPath, &cfg)
-	//jwtInterceptor:=grpc.ChainUnaryInterceptor(
-	//	zrpc.UnaryJWTServerInterceptor(""),
+	//jwtInterceptor := grpc.ChainUnaryInterceptor(
+	//	interceptor.UnaryJWTServerInterceptor("secret", nil),
 	//))
-	s := zrpc.NewServer(cfg.Zero)
+	s := zrpc.NewServer(cfg.Zero, grpc.KeepaliveParams(keepalive.ServerParameters{
+		Time:    10 * time.Second,
+		Timeout: 1 * time.Second,
+	}), grpc.KeepaliveEnforcementPolicy(keepalive.EnforcementPolicy{
+		PermitWithoutStream: true,
+		MinTime:             10 * time.Second,
+	}))
 	defer s.Stop()
 	s.RegisterServer(func(s *grpc.Server) error {
 		serviceContext := svc.NewServiceContext(cfg)
